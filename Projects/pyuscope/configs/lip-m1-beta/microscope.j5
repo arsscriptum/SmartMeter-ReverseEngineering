@@ -1,0 +1,102 @@
+/*
+Configuration:
+-Camera: E3ISPM20000KPA
+-1X relay lens
+-Zoom knob: 3.5X
+-Z: 5:1 gearbox
+-X/Y: no gearbox
+
+E3ISPM20000KPA => 1 “(13.06x8.76)
+A much larger sensor, too large for this microscope
+But not buggy like original intended camera
+*/
+{
+    /*
+    Sherline
+    https://www.sherline.com/product/2000-cnc2010-cnc-cnc-ready-deluxe-8-direction-mill/#specifications
+    Travel, “X” Axis    8.65″ (220 mm)
+        XXX: large table installed
+    Travel, “Y” Axis    7.00″ (178 mm)
+    Travel, “Z” Axis    5.38″ (137 mm)
+
+    X/Y/Z: 1 mm leadscrews
+    Z: 5:1 gearbox
+
+    Original GRBL pitch?
+    T8 leadscrew => 4 mm
+    This should be 1 mm => need to move 4x as far to get the same movement
+    */
+    "motion": {
+        "hal": "grbl-ser",
+        //2022-07-06: measured values on S/N 2301001
+        "backlash": {
+            //raw about 0.040
+            "x": 0.080,
+            //raw about 0.011
+            "y": 0.025,
+            //raw about 0.115
+            "z": 0.250,
+        },
+        //backlash down so z is locked in place under tension
+        "backlash_compensation": -1,
+        "scalars": {
+            //4 mm => 1 mm pitch
+            "x": 4.0,
+            //4 mm => 1 mm pitch
+            "y": 4.0,
+            //4 mm => 1 mm pitch, add 5x gearbox
+            "z": 20.0,
+        },
+        //2023-01-07: somewhat conservative values, especially for z
+        //WARNING: top of Z will cause excessive friction, do not approach
+        "soft_limits": {
+            "xmin": 0.0,
+            "xmax": 305.0,
+            "ymin": 0.0,
+            "ymax": 150.0,
+            //z home is at top
+            "zmin": -80.0,
+            "zmax": 0.0,
+        },
+    },
+    "imager": {
+        "source":"gst-toupcamsrc",
+        "width": 5440,
+        "height": 3648,
+        "source_properties": {
+            //0 => mode 5440x3648
+            "esize": 0
+        },
+        "source_properties_mod": {
+            //In us. Can go up to 15 sec which is impractical for typical usage
+            "expotime": {
+                "max": 200000
+            },
+        },
+        "scalar": 0.5,
+        //Uncomment to save snapshots and scans 8-bit lossless
+        //Note: raw and 12 bit support is much more involved / experimental
+        //"save_extension": ".tif",
+        //5440 - 1396 * 2 = 2648
+        "crop_pixels": {
+            "top": 500,
+            "bottom": 500,
+            "left": 1396,
+            "right": 1396,
+        },
+    },
+    "optics": {
+        "um_per_pixel_raw_1x": 1.321752266,
+    },
+    "systems": [
+        //Default configuration
+        {
+            "camera_sn": null,
+            "objectives_db": [
+                "vendor: Mitutoyo, model: 46-143, magnification: 5, na: 0.14",
+                "vendor: Mitutoyo, model: 46-144, magnification: 10, na: 0.28",
+                "vendor: Mitutoyo, model: 46-145, magnification: 20, na: 0.42",
+            ],
+        },
+    ],
+}

@@ -1,0 +1,8 @@
+**/*.out
+**/*.vcd
+**/*.dblite
+**/*.bin
+**/*.asc
+**/*.blif
+**/*.history
+

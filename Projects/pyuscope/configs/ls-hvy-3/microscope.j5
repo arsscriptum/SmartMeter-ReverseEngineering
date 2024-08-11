@@ -1,0 +1,107 @@
+/*
+For Travis
+Olympus BH2-UMA measuring microscope
+UT100 NEMA23 stages
+*/
+{
+    /*
+    2mm / rev
+    200 step / rev motors?
+    estimate 400
+    nope...actually needs to be 1600...hmm interesting
+    */
+    "motion": {
+        "hal": "grbl-ser",
+
+        //Be extra careful
+        "limit_switches": false,
+        "axes": "xy",
+
+        "grbl": {
+            "rc_pre_home": [
+                //$0 – Step pulse, microseconds
+                //"$0=10",
+                //$1 - Step idle delay, milliseconds
+                //$1=25
+                //$3 – Direction port invert, mask
+                "$3=3",
+                //Use future units
+                "$13=0",
+                //Disable soft limits (want negative, no homing workflow)
+                "$20=0",
+                //Disable hard limits (no switch)
+                "$21=0",
+                //Disable homing
+                "$22=0",
+                //$100, $101 and $102 – [X,Y,Z] steps/mm
+                "$100=1600.000", "$101=1600.000",
+                //X - Max Rate (mm/min)
+                //Target around 125 mm / min absolute speed (ie after soft scalars)
+                "$110=125.000", "$111=125.000", "$112=125.000",
+                //$120, $121, $122 – [X,Y,Z] Acceleration, mm/sec^2
+                //Target max vel / 20
+                "$120=6.25", "$121=6.25", "$122=6.25",
+                //$130, $131, $132 – [X,Y,Z] Max travel, mm
+                //Set slightly above pyuscope limit
+                //homg disabled => not usable
+                //"$130=19.500",
+                //"$131=19.500",
+
+                //G54: zero out offsets
+                //Could use P0 but better to make state canonical
+                "G10 L2 P1 X0 Y0 Z0",
+            ],
+            "rc_post_home": [
+                //Select G54 coordinate system
+                "G54",
+            ]
+        },
+        //XXX: actual value?
+        "backlash": 0.05,
+        /*
+        Actual stage range: 25 mm
+        Leave 2.5 mm each side
+        */
+        "soft_limits": {
+            "xmin": -2.5,
+            "xmax": 18.5,
+            "ymin": -2.5,
+            "ymax": 18.5,
+        },
+    },
+    //E3ISPM20000KPA
+    "imager": {
+        "source":"gst-toupcamsrc",
+        "width": 5440,
+        "height": 3648,
+        "native_pixel_pitch_um": 2.4,
+        "source_properties": {
+            "esize": 0
+        },
+        "scalar": 0.50,
+        "source_properties_mod": {
+            //In us. Can go up to 15 sec which is impractical for typical usage
+            "expotime": {
+                "max": 200000
+            },
+        },
+    },
+    "optics": {
+        "um_per_pixel_raw_1x": 3.262867647,
+        "infinity_tube_length": 180,
+    },
+
+    "systems": [
+        //Default configuration
+        {
+            "camera_sn": null,
+            "objectives_db": [
+                "vendor: Olympus, model: NeoDPlan 5X",
+                "vendor: Olympus, model: NeoDPlan 10X",
+                "vendor: Olympus, model: NeoSPlan 20X",
+                "vendor: Olympus, model: NeoDPlan 50X",
+                "vendor: Olympus, model: NeoSPlan 10X",
+            ],
+        },
+    ],
+}

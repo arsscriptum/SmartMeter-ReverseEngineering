@@ -1,0 +1,55 @@
+/*
+A minimal configuration to do basic testing
+*/
+{
+    "kinematics": {
+        "tsettle_autofocus": 0.0,
+        "tsettle_motion_na1": 0.0,
+        "tsettle_motion_base": 0.0,
+        "tsettle_hdr": 0.0,
+        "frame_sync": false,
+    },
+
+    "motion": {
+        "hal": "mock",
+        "z_format6": true,
+
+        "soft_limits": {
+            "xmin": -50.0,
+            "xmax": 350.0,
+            "ymin": -50.0,
+            "ymax": 350.0,
+        },
+    },
+    "imager": {
+        "source":"gst-videotestsrc",
+        "width": 800,
+        "height": 750,
+    },
+    "optics": {
+        //In the ballpark of a typical value
+        "um_per_pixel_raw_1x": 5.0,
+    },
+
+    "systems": [
+        //Default configuration
+        {
+            "camera_sn": null,
+            "objectives_db": [
+                "vendor: Mock, model: 5X",
+                "vendor: Mock, model: 10X",
+                "vendor: Mock, model: 20X",
+            ],
+            "objectives": [
+                {
+                    "vendor": "Mock",
+                    //needed an objective w/ space for HTTP server testing
+                    "model": "100X Oil",
+                    "magnification": 100,
+                    "na": 1.40,
+                    "name": "100X Oil",
+                },
+            ],
+        },
+    ],
+}

@@ -1,0 +1,206 @@
+/*
+Camera: see VM1B config ifle
+*/
+{
+    "kinematics": {
+        //2023-10-25: experimental
+        //Actual value might be higher but good enough for AF right now
+        "tsettle_autofocus": 0.3,
+        //Maybe it always has to flush a frame => gives sync time?
+        //2023-10-12: think 0.4 base isn't enough to fully settle vibration => increase slightly
+        "tsettle_motion_na1": 0.5,
+        //0.25 ocassionally misses frame sync
+        "tsettle_motion_base": 0.4,
+        //2023-10-18: missed at 0.5
+        "tsettle_hdr": 0.6,
+    },
+
+    "motion": {
+        "hal": "grbl-ser",
+        //2023-10-12: there appear to be some settling effects that favor a large value for best regularity
+        //Might be order of magnitude 0.1 to 1.0 mm, at least on z
+        "backlash": 0.1,
+
+        "soft_limits": {
+            "xmin": 10.0,
+            //the machine is set to 300, but seems to crash at 285
+            "xmax": 275.0,
+            "ymin": 10.0,
+            //the machine is set to 200, but seems to crash at 180
+            "ymax": 170.0,
+            //hmm coordinate system mismatches
+            //had to disable machine vs soft limit check for now
+            //trip around -37.8
+            "zmin": -32.5,
+            "zmax": -1.0,
+        },
+
+        "max_home_time": 90,
+        /*
+        FIXME: were values saved before overwriting?
+        maybe take from the other genmitsu which should be similar
+        */
+        //"use_wcs_offsets": true,
+        "grbl": {
+            //"port": "mock",
+            "rc_pre_home": [
+                //$100, $101 and $102 – [X,Y,Z] steps/mm
+                //was: 800 / 800 / 800
+                "$100=500.000", "$101=500.000", "$102=500.000",
+
+                //X - Max Rate (mm/min)
+                //was: 2000 / 2000 / 2000
+                "$110=960.000", "$111=960.000", "$112=1920.000",
+                //$120, $121, $122 – [X,Y,Z] Acceleration, mm/sec^2
+                //was: 50 / 50 / 50
+                "$120=24.000", "$121=24.000", "$122=24.000",
+
+                //max travel
+                //was: 300 / 200 / 80
+                "$130=480.000", "$131=320.000", "$132=128.000",
+
+                //Homing adjustments to account for gearbox etc
+                /*
+                was
+                "$24=100.000", //homing feed,mm/min
+                "$25=500.000", //homing seek,mm/min
+                "$26=250", //homing debounce,msec
+                "$27=2.000", //homing pull-off,mm
+                */
+                "$24=80.0","$25=400.000",
+                "$26=250","$27=3.2",
+            ],
+            "rc_post_home": [
+                /*
+                //machine coordinate => 80 on z adjusted by 8/5
+                */
+                "G10 L2 P1 X0 Y0 Z+0.000",
+                "G10 L2 P2 X0 Y0 Z0",
+
+                //Select WCS2
+                "G55",
+                //Hack2: changing coordinate system resets tool (homing hack)
+                //https://github.com/Labsmore/pyuscope/issues/310
+                //If we get this far assume we are homed and persist this
+                "T1",
+            ]
+        },
+        "scalars": {
+            "x": 1.6,
+            "y": 1.6,
+            "z": 1.6,
+        },
+    },
+
+    "imager": {
+        "source":"gst-v4l2src-hy800b",
+        //Find first device matching this name
+        //0ac8:3420 Z-Star Microelectronics Corp. Venus USB2.0 Camera
+        //Eakins, Hayer, etc all match this
+        //implies Eakins in a Hayer rebrand
+        //Label on some looks touptek like?
+        "v4l2_name": "Hayear Camera: HY-800B",
+        "source_properties": {
+            //"device": "/dev/video4"
+        },
+        "native_width": 3840,
+        "native_height": 2160,
+        "width": 1280,
+        "height": 960,
+        /*
+        2023-11-19: issues are actually the camera filters, not the optics
+        Give the full field of view
+        "crop_pixels": {
+            "top": 0,
+            "bottom": 0,
+            "left": 160,
+            "right": 160,
+        },
+        */
+
+        "videoflip_method": "rotate-180",
+    },
+    "optics": {
+        //spec sheet says
+        //Pixel size: 2um(H) x 2um(V)
+
+        //1.0x
+        //232 pix => 1 mm
+        //1000 / 232 = 4.31
+        //2023-10-25: 1X => 0.5X relay lens
+        //Actual mag values aren't quite right
+        //value is between about 8.8 and 10 depending on zoom level
+        //TODO: calibrate scale more proper
+        "um_per_pixel_raw_1x": 9.4,
+    },
+    "ipp": {
+        /*
+        "snapshot_correction": [
+            {"plugin": "correct-vm1v1", "dir": "vm1v1"},
+        ],
+        */
+        "plugins": {
+            "stack-enfuse": {
+                "align": true,
+            },
+        },
+    },
+
+    "systems": [
+        //Default configuration
+        {
+            "camera_sn": null,
+            "objectives": [
+                //NOTE: these NA values are not calibrated
+                //TODO: how to extract from f?
+                //how does f relate to relay lenses?
+                {
+                    "magnification": 0.7,
+                    "na": 0.0175,
+                    "name": "0.7X",
+                },
+                {
+                    "magnification": 1.0,
+                    "na": 0.025,
+                    "name": "1.0X",
+                },
+                {
+                    "magnification": 1.5,
+                    "na": 0.04,
+                    "name": "1.5X",
+                },
+                {
+                    "magnification": 2.0,
+                    "na": 0.055,
+                    "name": "2.0X",
+                },
+                {
+                    "magnification": 2.5,
+                    "na": 0.06875,
+                    "name": "2.5X",
+                },
+                {
+                    "magnification": 3.0,
+                    "na": 0.0825,
+                    "name": "3.0X",
+                },
+                {
+                    "magnification": 3.5,
+                    "na": 0.09625,
+                    "name": "3.5X",
+                },
+                {
+                    "magnification": 4.0,
+                    "na": 0.11,
+                    "name": "4.0X",
+                },
+                {
+                    "magnification": 4.5,
+                    "na": 0.12375,
+                    "name": "4.5X",
+                },
+            ],
+        },
+    ],
+}
+

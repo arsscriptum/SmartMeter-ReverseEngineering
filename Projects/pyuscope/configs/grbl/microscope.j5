@@ -1,0 +1,34 @@
+/*
+A minimal configuration to do basic testing
+*/
+{
+    "motion": {
+        "hal": "grbl-ser",
+        "soft_limits": {
+            "xmin": -50.0,
+            "xmax": 350.0,
+            "ymin": -50.0,
+            "ymax": 350.0,
+        },
+    },
+    "imager": {
+        "source":"gst-videotestsrc",
+        "width": 800,
+        "height": 750,
+        //In the ballpark of a typical value
+        "um_per_pixel_raw_1x": 5.0,
+    },
+    "systems": [
+        //Default configuration
+        {
+            "camera_sn": null,
+            "objectives_db": [
+                "vendor: Olympus, model: NeoDPlan 5X",
+                "vendor: Olympus, model: NeoDPlan 10X",
+                "vendor: Olympus, model: NeoSPlan 20X",
+                "vendor: Olympus, model: NeoDPlan 50X",
+                "vendor: Olympus, model: NeoSPlan 10X",
+            ],
+        },
+    ],
+}

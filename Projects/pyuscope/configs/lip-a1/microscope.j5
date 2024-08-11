@@ -1,0 +1,126 @@
+/*
+Labsmore Imaging Platform (LIP) series A revision 1 (LIP-A1)
+An inspection microscope loosely based on the 3018 CNC platform
+5:1 gearboxes on all axes
+AMA100 relay lens
+*/
+{
+    "planner": {
+        //FIXME: not tuned
+        "tsettle_motion": 1.0,
+        "tsettle_hdr": 0.2,
+    },
+    "motion": {
+        "hal": "grbl-ser",
+        //FIXME: what is the actual value?
+        "backlash": 1.0,
+        //5:1 gearboxes
+        //Commands must be 5x larger than advertised
+        //Considering firmware update
+        "scalars": {
+            "x": 5.0,
+            "y": 5.0,
+            "z": 5.0,
+        },
+        //Currently enforced via MotionHAL
+        //Eventually via limits in GRBL controller and/or homing switches
+        "soft_limits": {
+            //Conservative limits for now
+            //360 mm w/ 60 mm for stage
+            //Each end: ~10 mm
+            //2022-09-01: offset 15.0 mm. Marked reference
+            "xmax": 280.0,
+            //290 mm w/ 110 mm for stage
+            //Each end: ~10 mm
+            //2022-09-01: marked reference
+            "ymax": 160.0,
+            //90 mm w/ 40 mm for stage => 50 mm theoretical max
+            //actually less...maybe about 30 mm usable
+            //coupler eats up a lot hmm. Opened ECO on gearbox to fix
+            //Each end: ~5 mm
+            //2022-09-01: tune to 25
+            "zmax": 25.0,
+        },
+    },
+    "imager": {
+        "source":"gst-toupcamsrc",
+        "width": 5440,
+        "height": 3648,
+        "source_properties": {
+            "esize": 0
+        },
+        "scalar": 0.5
+    },
+
+
+    "systems": [
+        //Default configuration
+        {
+            "camera_sn": null,
+            //./sm3590t_template.py --scalar 2.896
+            "objectives": [
+                {
+                    "name":"B0.5x @ 0.7x",
+                    "magnification": 0.350,
+                    "x_view": 37.234
+                },
+                {
+                    "name":"B0.5x @ 1.5x",
+                    "magnification": 0.750,
+                    "x_view": 17.376
+                },
+                {
+                    "name":"B0.5x @ 3.0x",
+                    "magnification": 1.500,
+                    "x_view": 8.688
+                },
+                {
+                    "name":"B0.5x @ 4.5x",
+                    "magnification": 2.250,
+                    "x_view": 5.792
+                },
+                {
+                    "name":"B1.0x @ 0.7x",
+                    "magnification": 0.700,
+                    "x_view": 18.617
+                },
+                {
+                    "name":"B1.0x @ 1.5x",
+                    "magnification": 1.500,
+                    "x_view": 8.688
+                },
+                {
+                    "name":"B1.0x @ 3.0x",
+                    "magnification": 3.000,
+                    "x_view": 4.344
+                },
+                {
+                    "name":"B1.0x @ 4.5x",
+                    "magnification": 4.500,
+                    "x_view": 2.896
+                },
+                {
+                    "name":"B2.0x @ 0.7x",
+                    "magnification": 1.400,
+                    "x_view": 9.309
+                },
+                {
+                    "name":"B2.0x @ 1.5x",
+                    "magnification": 3.000,
+                    "x_view": 4.344
+                },
+                {
+                    "name":"B2.0x @ 3.0x",
+                    "magnification": 6.000,
+                    "x_view": 2.172
+                },
+                {
+                    "name":"B2.0x @ 4.5x",
+                    "magnification": 9.000,
+                    "x_view": 1.448
+                },
+            ],
+        },
+    ],
+}
+

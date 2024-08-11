@@ -1,0 +1,43 @@
+/*
+A minimal configuration to do basic testing
+*/
+{
+    "kinematics": {
+        "tsettle_autofocus": 0.0,
+        "tsettle_motion_na1": 0.0,
+        "tsettle_motion_base": 0.0,
+        "tsettle_hdr": 0.0,
+        "frame_sync": false,
+    },
+
+    "motion": {
+        "hal": "grbl-ser",
+        "grbl": {
+            "port": "mock",
+        },
+
+        "soft_limits": {
+            "xmin": 0.0,
+            "xmax": 120.0,
+            "ymin": 0.0,
+            "ymax": 205.0,
+        },
+    },
+    "imager": {
+        "source":"gst-videotestsrc",
+        "width": 800,
+        "height": 750,
+    },
+    "optics": {
+        //In the ballpark of a typical value
+        "um_per_pixel_raw_1x": 5.0,
+    },
+
+    "objectives": [
+		{
+			"name":"Objective",
+			"suffix":"suffix",
+			"x_view": 1.0
+		}
+    ]
+}
